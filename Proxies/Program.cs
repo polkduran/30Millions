@@ -13,28 +13,48 @@ namespace Proxies
 {
     class Program
     {
+
+
+
+
+
         static void Main(string[] args)
         {
+            var proxies = new List<string>();
+
             var wbThread = new Thread(() =>
             {
+                var page = 1;
+                var pageLimit = 31;
+                var urlFormat = "http://samair.ru/proxy/proxy-{0:0#}.htm";
                 var wb = new WebBrowser();
-                wb.Navigating += (s, e) => { Console.WriteLine("---- navigating ----"); };
+                wb.Navigating += (s, e) => { Console.WriteLine(string.Format("---- navigating {0}----", page)); };
                 wb.DocumentCompleted += (s, e) =>
                 {
                     Console.WriteLine("---- completed ----");
                     var trs = wb.Document.GetElementById("proxylist").GetElementsByTagName("tr");
-                    for (int i = 0; i < trs.Count; i++)
+                    int i = 0;
+                    for (; i < trs.Count; i++)
                     {
                         string[] infos;
                         if (TryGetInfos(trs[i], out infos))
                         {
-                            Console.WriteLine(string.Join(",", infos));
+                            proxies.Add(infos[0]);
                         }
                     }
-
-                    Application.ExitThread();
+                    proxies.Add(string.Format("page {0}", page));
+                    Console.WriteLine(string.Format("{0} found", i));
+                    ++page;
+                    if (page > pageLimit)
+                    {
+                        Application.ExitThread();
+                    }
+                    else
+                    {
+                        wb.Navigate(string.Format(urlFormat, page));
+                    }
                 };
-                wb.Navigate("http://samair.ru/proxy/proxy-01.htm");
+                wb.Navigate(string.Format(urlFormat, page));
                 Application.Run();
             });
 
@@ -42,6 +62,7 @@ namespace Proxies
             wbThread.Start();
 
             wbThread.Join(TimeSpan.FromSeconds(20));
+            File.WriteAllLines(@"C:\Users\pfernandez\Desktop\b.txt", proxies);
             Console.WriteLine("end");
 
         }
