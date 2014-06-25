@@ -104,8 +104,8 @@ namespace Millions
             request.Method = "GET";
             SetCommonHeaders(request);
 
-            var response = request.GetResponse();
             _result.Log("Getting response...");
+            var response = request.GetResponse();
             using (var reader = new StreamReader(response.GetResponseStream()))
             {
                 var content = reader.ReadToEnd();
