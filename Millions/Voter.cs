@@ -1,10 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Net;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace Millions
 {
@@ -25,7 +23,7 @@ namespace Millions
     public class VoterResult
     {
         private readonly List<string> _logs;
-        public ICollection<string> Logs
+        public IReadOnlyCollection<string> Logs
         {
             get
             {
@@ -48,7 +46,7 @@ namespace Millions
             _logs.Add(message);
         }
 
-        internal void Log(string format, params string[] args)
+        internal void LogFormat(string format, params string[] args)
         {
             Log(string.Format(format, args));
         }
@@ -62,7 +60,7 @@ namespace Millions
             return voter.Vote();
         }
 
-        private VoterSettings _settings;
+        private readonly VoterSettings _settings;
         private readonly VoterResult _result;
         private readonly CookieContainer _cookieContainer;
         private const string START_URL = "http://www.30millionsdamis.fr/la-fondation/nos-campagnes/oui-a-la-fidelite/participer.html";
@@ -79,7 +77,13 @@ namespace Millions
         {
             try
             {
+                _result.Log("###------------------------------");
                 _result.Log("Starting navigation...");
+                if (_settings.HasProxy)
+                {
+                    _result.LogFormat("Using proxy {0}:{1}", _settings.ProxyAddress, _settings.ProxyPort);
+                }
+
                 LaunchStartRequest();
                 LaunchVoteRequest();
                 _result.Log("Vote done successfully");
@@ -87,17 +91,16 @@ namespace Millions
             }
             catch (Exception ex)
             {
-                _result.Log("------------------------------");
                 _result.Log("Error while voting");
                 _result.Log(ex.Message);
-                _result.Log("------------------------------");
             }
+            _result.Log("------------------------------###");
             return _result;
         }
 
         private void LaunchStartRequest()
         {
-            _result.Log("Start request {0}",START_URL);
+            _result.LogFormat("Start request {0}", START_URL);
             var request = (HttpWebRequest)HttpWebRequest.Create(START_URL);
             SetProxy(request);
             request.CookieContainer = _cookieContainer;
@@ -113,12 +116,12 @@ namespace Millions
                 _result.Log(content.Length > 100 ? content.Substring(0, 100) : content);
                 _result.Log("------------------------------");
             }
-            _result.Log("End request {0}", START_URL);
+            _result.LogFormat("End request {0}", START_URL);
         }
 
         private void LaunchVoteRequest()
         {
-            _result.Log("Start request {0}", VOTE_URL);
+            _result.LogFormat("Start request {0}", VOTE_URL);
             var request = (HttpWebRequest)HttpWebRequest.Create(VOTE_URL);
             SetProxy(request);
             request.CookieContainer = _cookieContainer;
@@ -151,7 +154,7 @@ namespace Millions
                 _result.Log("------------------------------");
                 _result.VoteResponse = content;
             }
-            _result.Log("End request {0}", VOTE_URL);
+            _result.LogFormat("End request {0}", VOTE_URL);
         }
 
         private void SetCommonHeaders(HttpWebRequest request)
@@ -173,7 +176,7 @@ namespace Millions
             }
 
             var proxyAddress = string.Format("{0}{1}", _settings.ProxyAddress, string.IsNullOrEmpty(_settings.ProxyPort) ? "" : ":" + _settings.ProxyPort);
-            _result.Log("Setting proxy: {0}", proxyAddress);
+            _result.LogFormat("Setting proxy: {0}", proxyAddress);
             var proxy = new WebProxy();
             proxy.Address = new Uri(proxyAddress);
             request.Proxy = proxy;
