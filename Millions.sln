@@ -1,8 +1,6 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2013
-VisualStudioVersion = 12.0.21005.1
-MinimumVisualStudioVersion = 10.0.40219.1
+# Visual Studio 2012
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Millions.Test", "Millions.Test\Millions.Test.csproj", "{D12D401C-F26A-47E8-A302-CF5B034C85D6}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Millions.Client", "Millions.Client\Millions.Client.csproj", "{84912289-F0F5-41A3-9747-6B5071BB8B1D}"
@@ -10,6 +8,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Millions", "Millions\Millions.csproj", "{B5C44935-F494-4388-8BBA-5B0BDF41BC1D}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Proxies", "Proxies\Proxies.csproj", "{5CBD4B43-A686-48A8-B6F2-DC4030D6E019}"
+EndProject
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Millions.Results", "Millions.Results\Millions.Results.fsproj", "{2C1E19B4-2449-4F5C-ABA4-14B050814559}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -33,6 +33,10 @@ Global
 		{5CBD4B43-A686-48A8-B6F2-DC4030D6E019}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5CBD4B43-A686-48A8-B6F2-DC4030D6E019}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5CBD4B43-A686-48A8-B6F2-DC4030D6E019}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2C1E19B4-2449-4F5C-ABA4-14B050814559}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2C1E19B4-2449-4F5C-ABA4-14B050814559}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2C1E19B4-2449-4F5C-ABA4-14B050814559}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2C1E19B4-2449-4F5C-ABA4-14B050814559}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
