@@ -6,7 +6,7 @@ using System.Text;
 
 namespace Millions
 {
-    public class VoterSettings
+    public class VoterSettings : IEquatable<VoterSettings>
     {
         public string ProxyAddress { get; set; }
         public string ProxyPort { get; set; }
@@ -17,6 +17,13 @@ namespace Millions
             {
                 return !string.IsNullOrWhiteSpace(ProxyAddress);
             }
+        }
+
+        public bool Equals(VoterSettings other)
+        {
+            if (other == null) return false;
+            return other.ProxyAddress == this.ProxyAddress 
+                && other.ProxyPort == this.ProxyPort;
         }
     }
 
@@ -84,7 +91,7 @@ namespace Millions
                     _result.LogFormat("Using proxy {0}:{1}", _settings.ProxyAddress, _settings.ProxyPort);
                 }
 
-                LaunchStartRequest();
+                //LaunchStartRequest();
                 LaunchVoteRequest();
                 _result.Log("Vote done successfully");
                 _result.Ok = true;
@@ -106,7 +113,7 @@ namespace Millions
             request.CookieContainer = _cookieContainer;
             request.Method = "GET";
             SetCommonHeaders(request);
-
+            
             _result.Log("Getting response...");
             var response = request.GetResponse();
             using (var reader = new StreamReader(response.GetResponseStream()))

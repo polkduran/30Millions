@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -13,13 +14,26 @@ namespace Proxies
 {
     class Program
     {
+        #region p1
 
-
-
-
-
-        static void Main(string[] args)
+        private static void StartP1()
         {
+
+            Func<HtmlElement, Tuple<bool, string[]>> tryGetProxies = tr => {
+
+                var infos = new string[4];
+                var tds = tr.GetElementsByTagName("td");
+                if (tds.Count != 4)
+                    return Tuple.Create(false,infos);
+                
+                for (int i = 0; i < 4; i++)
+                {
+                    infos[i] = tds[i].InnerText;
+                }
+                return Tuple.Create(true,infos);
+            
+            };
+
             var proxies = new List<string>();
 
             var wbThread = new Thread(() =>
@@ -36,10 +50,10 @@ namespace Proxies
                     int i = 0;
                     for (; i < trs.Count; i++)
                     {
-                        string[] infos;
-                        if (TryGetInfos(trs[i], out infos))
+                        var infos = tryGetProxies(trs[i]);
+                        if (infos.Item1)
                         {
-                            proxies.Add(infos[0]);
+                            proxies.Add(infos.Item2[0]);
                         }
                     }
                     proxies.Add(string.Format("page {0}", page));
@@ -62,24 +76,48 @@ namespace Proxies
             wbThread.Start();
 
             wbThread.Join(TimeSpan.FromSeconds(20));
-            File.WriteAllLines(@"C:\Users\pfernandez\Desktop\b.txt", proxies);
+            File.WriteAllLines(@"D:\MyData\Projects\Millions\Proxies\Proxies\1.txt", proxies);
             Console.WriteLine("end");
 
         }
 
-        static bool TryGetInfos(HtmlElement tr, out string[] infos)
+        #endregion
+
+
+        private static void P2()
         {
-            infos = null;
-            var tds = tr.GetElementsByTagName("td");
-            if (tds.Count != 4)
-                return false;
-            infos = new string[4];
-            for (int i = 0; i < 4; i++)
+            var reg = new Regex(@"<li\s+class=""proxy""[^>]*>(?<proxy>[^<]+)</li>\s*<li\s+class=""https""[^>]*>(?:<strong>)?(?<http>[^<]+)<");
+            Func<int, List<string>> doRequest = page => {
+                var url = string.Format("http://proxy-list.org/english/index.php?p={0}", page);
+                var request = (HttpWebRequest)HttpWebRequest.Create(url);
+                var response = request.GetResponse();
+
+                using (var reader = new StreamReader(response.GetResponseStream()))
+                {
+                    var content = reader.ReadToEnd();
+                    var matches = from Match match in reg.Matches(content)
+                                  let proxy = match.Groups["proxy"].Value
+                                  where !string.IsNullOrEmpty(proxy)
+                                  let http = match.Groups["http"].Value
+                                  where !string.IsNullOrEmpty(http)
+                                  select http.ToLower()+"://" + proxy;
+                    return matches.ToList();
+                }
+            };
+
+            var results = new List<string>();
+            for (int i = 1; i <= 10; i++)
             {
-                infos[i] = tds[i].InnerText;
+                var res = doRequest(i);
+                results.AddRange(res);
             }
-            return true;
+            File.WriteAllLines(@"D:\MyData\Projects\Millions\Proxies\Proxies\2.txt", results);
         }
 
+        static void Main(string[] args)
+        {
+            P2();
+        }
+        
     }
 }
